@@ -6,8 +6,8 @@
     "dev": "vercel dev"
   },
   "dependencies": {
-    "@sparticuz/chromium": "^122.0.0",
+    "@sparticuz/chromium": "^131.0.1",
     "express": "^5.2.1",
-    "puppeteer-core": "^22.6.0"
+    "puppeteer-core": "^23.9.0"
   }
 }
