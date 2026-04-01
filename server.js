@@ -2,7 +2,11 @@ const express = require("express");
 const { searchAdventure } = require("./lib/scraper");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+// 동시 요청 제한
+let activeRequests = 0;
+const MAX_CONCURRENT = 2;
 
 // CORS 허용
 app.use((req, res, next) => {
@@ -24,7 +28,15 @@ app.get("/api/adventure", async (req, res) => {
     });
   }
 
-  console.log(`[요청] 모험단 검색: ${name}`);
+  if (activeRequests >= MAX_CONCURRENT) {
+    return res.status(429).json({
+      success: false,
+      error: "현재 다른 요청을 처리 중입니다. 잠시 후 다시 시도해주세요.",
+    });
+  }
+
+  activeRequests++;
+  console.log(`[요청] 모험단 검색: ${name} (활성: ${activeRequests}/${MAX_CONCURRENT})`);
 
   try {
     const result = await searchAdventure(name);
@@ -33,6 +45,8 @@ app.get("/api/adventure", async (req, res) => {
   } catch (error) {
     console.error(`[에러] ${error.message}`);
     res.status(500).json({ success: false, error: error.message });
+  } finally {
+    activeRequests--;
   }
 });
 
